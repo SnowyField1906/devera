@@ -82,4 +82,6 @@ goloop rpc \
 #+END_SRC
 
 *** Result
+#+BEGIN_SRC bash
 "http://127.0.0.1:9082/api/v3/token/1"
+#+END_SRC
