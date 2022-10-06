@@ -1,0 +1,4 @@
+rootProject.name = 'Class 8 - ICON smart contracts 1'
+include (
+    'irc3-token',
+)

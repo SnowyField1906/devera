@@ -1,0 +1,16 @@
+#+title: Setup Icon Local Network
+
+* Docker
+** docker-ce
+** docker-compose
+
+* GO
+
+* goloop and gochain-local
+** ubuntu libs
+** rocksdb
+** goloop and gochain-icon-image
+** gochain-local
+
+* Goloop CLI
+** OpenJDK 11
