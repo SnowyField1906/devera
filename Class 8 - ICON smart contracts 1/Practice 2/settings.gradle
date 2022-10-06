@@ -1,0 +1,4 @@
+rootProject.name = 'Practice 2'
+include (
+    'irc3-token',
+)

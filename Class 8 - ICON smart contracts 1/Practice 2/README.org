@@ -1,0 +1,85 @@
+* Practice 2
+
+#+BEGIN_SRC bash
+sudo ./gradlew build
+sudo ./gradlew optimizedJar
+#+END_SRC
+
+** Make goloop start
+*** Input
+#+BEGIN_SRC bash
+cd gochain-local
+sudo ./run_gochain.sh start
+export PATH=$PATH:/$HOME/goloop/bin
+#+END_SRC
+
+** Deploy contract
+*** Input
+#+BEGIN_SRC bash
+goloop rpc sendtx deploy ./irc3-token/build/libs/irc3-token-0.9.0-optimized.jar \
+    --uri http://127.0.0.1:9082/api/v3 \
+    --key_store /$HOME/gochain-local/data/godWallet.json --key_password gochain \
+    --nid 0x3 --step_limit 10000000000 \
+    --content_type application/java \
+    --param _name=IRC3Token \
+    --param _symbol=IRC3T
+#+END_SRC
+
+*** Result
+#+BEGIN_SRC bash
+"0x0615bbc07a0771841e964dd8983ae130947181f7752ae48bc96f1524ea2ee4b4"
+#+END_SRC
+
+** Verify
+*** Input
+#+BEGIN_SRC bash
+goloop rpc \
+    --uri http://localhost:9082/api/v3 txresult 0x0615bbc07a0771841e964dd8983ae130947181f7752ae48bc96f1524ea2ee4b4
+#+END_SRC
+
+*** Result
+#+BEGIN_SRC json
+{
+  "to": "cx0000000000000000000000000000000000000000",
+  "cumulativeStepUsed": "0x417e994e",
+  "stepUsed": "0x417e994e",
+  "stepPrice": "0x2e90edd00",
+  "eventLogs": [],
+  "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "status": "0x1",
+  "scoreAddress": "cx01c0738457f8ca20d5208877f233beb4adc24b3c",
+  "blockHash": "0x5e49eac1200def2ee816025ae9d1f5c73ea0dc501a923e55e4765630e655ca3b",
+  "blockHeight": "0x1c63",
+  "txIndex": "0x0",
+  "txHash": "0x0615bbc07a0771841e964dd8983ae130947181f7752ae48bc96f1524ea2ee4b4"
+}
+#+END_SRC
+
+** Call to contract `mint`
+*** Input
+#+BEGIN_SRC bash
+goloop rpc sendtx call \
+    --to cx01c0738457f8ca20d5208877f233beb4adc24b3c \
+    --uri http://127.0.0.1:9082/api/v3 \
+    --key_store /$HOME/gochain-local/data/godWallet.json --key_password gochain \
+    --nid 0x3 --step_limit 10000000 \
+    --method mint \
+    --param _tokenId=1
+#+END_SRC
+
+*** Result
+#+BEGIN_SRC bash
+"0x30409bbca4e4a27e7d2c554201c0beb5a17bef70089dc3685787da7a4904e2d8"
+#+END_SRC
+
+*** Input
+#+BEGIN_SRC bash
+goloop rpc \
+    --uri http://localhost:9082/api/v3 call \
+    --to cx01c0738457f8ca20d5208877f233beb4adc24b3c  \
+    --method getUri \
+    --param _tokenId=1
+#+END_SRC
+
+*** Result
+"http://127.0.0.1:9082/api/v3/token/1"
