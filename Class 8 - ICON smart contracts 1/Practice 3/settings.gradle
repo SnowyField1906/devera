@@ -1,4 +1,4 @@
-rootProject.name = 'Practice 2'
+rootProject.name = 'Practice 3'
 include (
-    'irc3-token',
+    'simple-governance',
 )

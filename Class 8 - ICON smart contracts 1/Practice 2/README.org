@@ -1,19 +1,46 @@
 * Practice 2
+** Customize
+#+begin_src java
+import score.DictDB;
 
-#+BEGIN_SRC bash
-sudo ./gradlew build
-sudo ./gradlew optimizedJar
-#+END_SRC
+public DictDB<BigInteger, String> tokens = Context.newDictDB("tokens", String.class);
+#+end_src
 
-** Make goloop start
-*** Input
+
+** 1. Develop ~mint~ method with ~uri~ parameter
+#+begin_src java
+@External()
+public void mint(BigInteger _tokenId) {
+    // simple access control - only the contract owner can mint new token
+    Context.require(Context.getCaller().equals(Context.getOwner()));
+    super._mint(Context.getCaller(), _tokenId);
+
+    tokens.set(_tokenId, "http://127.0.0.1:9082/api/v3/token/" + _tokenId.toString());
+}
+#+end_src
+
+** 2. Develop ~tokenURI~ method to get ~uri~ by ~tokenId~
+#+begin_src java
+@External(readonly=true)
+public String getUri(BigInteger _tokenId) {
+    return tokens.get(_tokenId);
+}
+#+end_src
+
+** Make ~Goloop~ start
 #+BEGIN_SRC bash
 cd gochain-local
 sudo ./run_gochain.sh start
 export PATH=$PATH:/$HOME/goloop/bin
 #+END_SRC
 
-** Deploy contract
+** Build and optimize jar
+#+BEGIN_SRC bash
+sudo ./gradlew build
+sudo ./gradlew optimizedJar
+#+END_SRC
+
+** 3. Deploy ~irc3-token~ contract to local network
 *** Input
 #+BEGIN_SRC bash
 goloop rpc sendtx deploy ./irc3-token/build/libs/irc3-token-0.9.0-optimized.jar \
@@ -30,7 +57,7 @@ goloop rpc sendtx deploy ./irc3-token/build/libs/irc3-token-0.9.0-optimized.jar 
 "0x0615bbc07a0771841e964dd8983ae130947181f7752ae48bc96f1524ea2ee4b4"
 #+END_SRC
 
-** Verify
+** Get transaction detail
 *** Input
 #+BEGIN_SRC bash
 goloop rpc \
@@ -55,7 +82,7 @@ goloop rpc \
 }
 #+END_SRC
 
-** Call to contract `mint`
+** 4. Send transaction to mint ~irc3-token~
 *** Input
 #+BEGIN_SRC bash
 goloop rpc sendtx call \
@@ -72,6 +99,7 @@ goloop rpc sendtx call \
 "0x30409bbca4e4a27e7d2c554201c0beb5a17bef70089dc3685787da7a4904e2d8"
 #+END_SRC
 
+** 5. Call transaction to view ~irc3-token uri~
 *** Input
 #+BEGIN_SRC bash
 goloop rpc \

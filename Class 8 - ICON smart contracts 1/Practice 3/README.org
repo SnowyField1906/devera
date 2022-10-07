@@ -1,0 +1,103 @@
+* B. Practice 3
+** 1. Start ~Goloop~ local node
+#+BEGIN_SRC bash
+cd gochain-local
+sudo ./run_gochain.sh start
+export PATH=$PATH:/$HOME/goloop/bin
+#+END_SRC
+
+** 2. Build and optimize the jar
+#+BEGIN_SRC bash
+sudo ./gradlew build
+sudo ./gradlew optimizedJar
+#+END_SRC
+
+** 3. Deploy the optimized jar
+*** Input
+#+BEGIN_SRC bash
+goloop rpc sendtx deploy ./simple-governance/build/libs/simple-governance-0.1.0-optimized.jar \
+    --uri http://127.0.0.1:9082/api/v3 \
+    --key_store /$HOME/gochain-local/data/godWallet.json --key_password gochain \
+    --nid 0x3 --step_limit 10000000000 \
+    --content_type application/java \
+    --param title="Simple Governance" \
+    --param description="Java SCORE smart contract"
+#+END_SRC
+
+*** Result
+#+BEGIN_SRC bash
+"0x6b4a7515e1aacb411be4b095e65fe59e2467980eff04e72773146f4d1bebe2af"
+#+END_SRC
+
+** 4. Get transaction detail
+*** Input
+#+BEGIN_SRC bash
+goloop rpc \
+    --uri http://localhost:9082/api/v3 txresult 0x6b4a7515e1aacb411be4b095e65fe59e2467980eff04e72773146f4d1bebe2af
+#+END_SRC
+
+*** Result
+#+BEGIN_SRC json
+{
+  "to": "cx0000000000000000000000000000000000000000",
+  "cumulativeStepUsed": "0x3ce69c47",
+  "stepUsed": "0x3ce69c47",
+  "stepPrice": "0x2e90edd00",
+  "eventLogs": [],
+  "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "status": "0x1",
+  "scoreAddress": "cx8a899208a64f538eb986e899bb3d4b12d11d5da4",
+  "blockHash": "0x2f8d0aa624b4e7c1d8455cfa9a01ac431207e3354118dadcd9f9e2514c8a9a1b",
+  "blockHeight": "0x11d4",
+  "txIndex": "0x0",
+  "txHash": "0x6b4a7515e1aacb411be4b095e65fe59e2467980eff04e72773146f4d1bebe2af"
+}
+#+END_SRC
+
+** 5. Call to contract (method ~getVoteCount~)
+*** Input
+#+BEGIN_SRC bash
+goloop rpc \
+    --uri http://localhost:9082/api/v3 call \
+    --to cx8a899208a64f538eb986e899bb3d4b12d11d5da4  \
+    --method getVoteCount \
+    --param proposal=For
+#+END_SRC
+
+*** Result
+#+BEGIN_SRC bash
+"0x0"
+#+END_SRC
+
+** 6. Send to contract (method ~Vote~)
+*** Input
+#+BEGIN_SRC bash
+goloop rpc sendtx call \
+    --to cx8a899208a64f538eb986e899bb3d4b12d11d5da4 \
+    --uri http://127.0.0.1:9082/api/v3 \
+    --key_store /$HOME/gochain-local/data/godWallet.json \
+    --key_password gochain \
+    --nid 0x3 --step_limit 10000000 \
+    --method Vote \
+    --param proposal=For
+#+END_SRC
+
+*** Result
+#+BEGIN_SRC bash
+"0x6873787bcac7b065f06299d7ac8a3b0209bc73a46d9da68dfb4479f20c7e3272"
+#+END_SRC
+
+** 7. Call to contract (method ~getVoteCount~)
+*** Input
+#+BEGIN_SRC bash
+goloop rpc \
+    --uri http://localhost:9082/api/v3 call \
+    --to cx8a899208a64f538eb986e899bb3d4b12d11d5da4  \
+    --method getVoteCount \
+    --param proposal=For
+#+END_SRC
+
+*** Result
+#+BEGIN_SRC bash
+"0x0"
+#+END_SRC
